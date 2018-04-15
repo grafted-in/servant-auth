@@ -163,7 +163,7 @@ cookieAuthSpec
   = describe "The Auth combinator"
   $ around (testWithApplication . return $ app cookieOnlyApi) $ do
 
-  it "fails if CSRF header and cookie don't match" $ \port -> property
+  it "fails if XSRF header and cookie don't match" $ \port -> property
                                                    $ \(user :: User) -> do
     jwt <- createJWT theKey (newJWSHeader ((), HS256)) (claims $ toJSON user)
     opts' <- addJwtToCookie jwt
@@ -171,13 +171,13 @@ cookieAuthSpec
                          (xsrfField xsrfCookieName cookieCfg <> "=blerg")
     getWith opts (url port) `shouldHTTPErrorWith` status401
 
-  it "fails if there is no CSRF header and cookie" $ \port -> property
+  it "fails if there is no XSRF header and cookie" $ \port -> property
                                                    $ \(user :: User) -> do
     jwt <- createJWT theKey (newJWSHeader ((), HS256)) (claims $ toJSON user)
     opts <- addJwtToCookie jwt
     getWith opts (url port) `shouldHTTPErrorWith` status401
 
-  it "succeeds if CSRF header and cookie match, and JWT is valid" $ \port -> property
+  it "succeeds if XSRF header and cookie match, and JWT is valid" $ \port -> property
                                                                  $ \(user :: User) -> do
     jwt <- createJWT theKey (newJWSHeader ((), HS256)) (claims $ toJSON user)
     opts' <- addJwtToCookie jwt
